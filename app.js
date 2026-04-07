@@ -458,6 +458,13 @@ refs.btnRestart.addEventListener('click', () => {
   showScreen('welcome');
 });
 
+// Prevent pull-to-refresh on iOS Safari
+let _touchStartY = 0;
+document.addEventListener('touchstart', e => { _touchStartY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchmove', e => {
+  if (window.scrollY === 0 && e.touches[0].clientY > _touchStartY) e.preventDefault();
+}, { passive: false });
+
 // Arrow keys: ← = A, → = B (desktop only)
 document.addEventListener('keydown', e => {
   if (!state.accepting) return;
