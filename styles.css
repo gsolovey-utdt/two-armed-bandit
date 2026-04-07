@@ -415,6 +415,17 @@ cite {
   color: var(--muted);
 }
 
+/* Bullet lists inside learn sections */
+.learn-list {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 /* References */
 .refs-list {
   list-style: none;

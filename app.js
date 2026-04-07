@@ -56,7 +56,6 @@ const refs = {
   collectiveSummary: el('collective-summary'),
   collectiveStatus:  el('collective-status'),
   btnToLearn:        el('btn-to-learn'),
-  btnRestart:        el('btn-restart'),
 };
 
 // ============================================================
@@ -452,11 +451,24 @@ refs.btnA.addEventListener('click', () => handleChoice('A'));
 refs.btnB.addEventListener('click', () => handleChoice('B'));
 refs.btnToCollective.addEventListener('click', showCollectiveResults);
 refs.btnToLearn.addEventListener('click', () => showScreen('learn'));
-refs.btnRestart.addEventListener('click', () => {
-  refs.nameInput.value = '';
-  refs.btnStart.disabled = true;
-  showScreen('welcome');
+
+// btn-restart lives inside learn.html which is injected dynamically — use delegation
+document.addEventListener('click', e => {
+  if (e.target.id === 'btn-restart') {
+    refs.nameInput.value = '';
+    refs.btnStart.disabled = true;
+    showScreen('welcome');
+  }
 });
+
+// Load learn screen content from separate file
+fetch('learn.html')
+  .then(r => r.text())
+  .then(html => { document.querySelector('.learn-card').innerHTML = html; })
+  .catch(() => {
+    document.querySelector('.learn-card').innerHTML =
+      '<p style="color:var(--muted)">No se pudo cargar el contenido.</p>';
+  });
 
 // Prevent pull-to-refresh on iOS Safari
 let _touchStartY = 0;
