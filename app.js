@@ -326,7 +326,7 @@ async function showCollectiveResults() {
   try {
     const { data, error } = await db
       .from('trials')
-      .select('session_id, trial_number, choice, phase1_winner')
+      .select('session_id, participant_name, trial_number, choice, phase1_winner, cumulative_score')
       .order('trial_number', { ascending: true });
 
     if (error) throw error;
@@ -391,9 +391,48 @@ async function showCollectiveResults() {
       options: baseChartOptions(),
     });
 
+    renderLeaderboard(complete);
+
   } catch (_) {
     refs.collectiveStatus.textContent = 'No se pudieron cargar los datos del grupo.';
   }
+}
+
+// ============================================================
+// LEADERBOARD
+// ============================================================
+function renderLeaderboard(sessions) {
+  const lbEl     = el('leaderboard');
+  const rowsEl   = el('lb-rows');
+  const statusEl = el('lb-status');
+
+  if (!sessions.length) { lbEl.style.display = 'none'; return; }
+
+  const scores = sessions.map(s => ({
+    name:  s[0].participant_name,
+    score: Math.max(...s.map(t => t.cumulative_score)),
+  }));
+
+  scores.sort((a, b) => b.score - a.score);
+  const top10 = scores.slice(0, 10);
+
+  const medals     = ['🥇', '🥈', '🥉'];
+  const rankCls    = ['r1', 'r2', 'r3'];
+
+  statusEl.textContent = `Top ${top10.length}`;
+  rowsEl.innerHTML = top10.map((entry, i) => {
+    const rank   = i < 3 ? medals[i] : i + 1;
+    const rCls   = i < 3 ? rankCls[i] : 'rn';
+    const rowCls = i < 4 ? `rank-${i + 1}` : '';
+    return `
+      <div class="lb-row ${rowCls}">
+        <div class="lb-rank ${rCls}">${rank}</div>
+        <div class="lb-info"><div class="lb-name">${entry.name}</div></div>
+        <div class="lb-score ${i === 0 ? 'r1' : ''}">${entry.score}</div>
+      </div>`;
+  }).join('');
+
+  lbEl.style.display = 'block';
 }
 
 // ============================================================
