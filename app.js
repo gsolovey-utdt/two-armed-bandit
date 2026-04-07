@@ -217,6 +217,7 @@ function vertLinePlugin(atX) {
 function baseChartOptions() {
   return {
     responsive: true,
+    maintainAspectRatio: false,
     parsing: false,
     scales: {
       x: {
