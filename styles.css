@@ -1,0 +1,459 @@
+/* ============================================================
+   VARIABLES
+   ============================================================ */
+:root {
+  --bg:           #0d0e12;
+  --surface:      #161820;
+  --surface-2:    #1e2030;
+  --border:       #2a2d3e;
+  --text:         #e8e9f0;
+  --muted:        #8b8fa8;
+  --gold:         #e8c547;
+  --gold-dark:    #d4b03a;
+  --blue:         #5b8dee;
+  --blue-dark:    #4a7ad8;
+  --reward:       #4ade80;
+  --no-reward:    #f87171;
+  --shadow:       0 4px 24px rgba(0,0,0,0.4);
+  --radius:       14px;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen {
+  display: none;
+  width: 100%;
+  max-width: 640px;
+}
+
+.screen.active {
+  display: block;
+  animation: fadeUp 0.28s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+}
+
+/* ============================================================
+   NYPE HEADER
+   ============================================================ */
+.nype-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.75rem;
+}
+
+.nype-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--bg);
+  background: var(--gold);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.nype-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.5rem, 4vw, 1.9rem);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1.25;
+}
+
+h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.25rem, 3.5vw, 1.55rem);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+p {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--muted);
+  margin-bottom: 0.85rem;
+}
+
+p strong { color: var(--text); }
+.muted { color: var(--muted); }
+
+/* ============================================================
+   FORM
+   ============================================================ */
+.form-group {
+  margin: 1.5rem 0 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+input[type="text"]:focus { border-color: var(--gold); }
+input[type="text"]::placeholder { color: var(--muted); opacity: 0.6; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.1s;
+  text-align: center;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--gold);
+  color: #0d0e12;
+}
+.btn-primary:hover:not(:disabled) { background: var(--gold-dark); }
+.btn-primary:disabled {
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--border); }
+
+/* ============================================================
+   TASK SCREEN
+   ============================================================ */
+#screen-task {
+  display: none;
+  max-width: 480px;
+  margin: 0 auto;
+}
+#screen-task.active { display: block; }
+
+.task-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.task-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.5rem;
+}
+
+.score-box, .trial-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.score-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.score-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.trial-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+}
+
+.feedback-area {
+  height: 2.6rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  letter-spacing: 0.02em;
+}
+
+.fb-reward    { color: var(--reward); }
+.fb-no-reward { color: var(--no-reward); }
+
+.choices-container {
+  display: flex;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.choice-btn {
+  flex: 1;
+  height: clamp(110px, 28vw, 190px);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 7vw, 3.5rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s, filter 0.15s;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+
+.choice-btn:active:not(:disabled) { transform: scale(0.92); }
+.choice-btn:hover:not(:disabled)  { filter: brightness(1.1); }
+.choice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.choice-btn.pressed  { transform: scale(0.92); }
+
+.choice-A { background: var(--gold);  color: #0d0e12; }
+.choice-B { background: var(--blue);  color: #ffffff; }
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+.chart-wrapper {
+  width: 100%;
+  margin: 1.25rem 0;
+}
+
+.info-box {
+  background: var(--surface-2);
+  border-left: 3px solid var(--gold);
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.info-box strong { color: var(--text); }
+
+.loading-text {
+  text-align: center;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.5rem 0 1rem;
+  min-height: 2rem;
+}
+
+/* ============================================================
+   LEARN MORE
+   ============================================================ */
+.learn-card h2 { margin-bottom: 1.5rem; }
+
+.learn-section { margin-bottom: 1.75rem; }
+
+.learn-section h3 {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+.learn-neuro {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+blockquote {
+  border-left: 3px solid var(--blue);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface-2);
+  border-radius: 0 6px 6px 0;
+}
+
+blockquote p {
+  font-style: italic;
+  margin-bottom: 0.4rem;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+cite {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: normal;
+}
+
+.formula {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  text-align: center;
+  color: var(--text);
+  margin: 0.75rem 0;
+}
+
+.formula-note {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* References */
+.refs-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.refs-list li {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--muted);
+  padding-left: 1rem;
+  border-left: 2px solid var(--border);
+}
+
+.ref-authors { color: var(--text); font-weight: 500; }
+.ref-year    { color: var(--muted); }
+.ref-title   { color: var(--text); }
+.ref-journal { color: var(--muted); }
+.ref-note    {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+/* Footer */
+.learn-footer {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.learn-footer .btn { max-width: 280px; }
+
+.author-credit {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.6;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 480px) {
+  body { padding: 0.75rem 0.5rem; }
+  .card { padding: 1.25rem; border-radius: 10px; }
+  .choices-container { gap: 0.85rem; }
+  .nype-sub { display: none; }
+}
