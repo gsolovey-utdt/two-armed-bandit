@@ -20,11 +20,21 @@
       </div>
       <h1>Experimento de aprendizaje</h1>
       <p>
-        En este experimento vas a elegir repetidamente entre dos opciones: <strong>A</strong> o <strong>B</strong>.
-        Una de ellas te va a dar puntos con más frecuencia que la otra.
-        Tu objetivo es <strong>acumular la mayor cantidad de puntos posibles</strong>.
+        En cada turno vas a ver dos máquinas: <strong>A</strong> y <strong>B</strong>.
+        Elegís una, y esa máquina te da un punto… o no.
       </p>
-      <p>No hay respuestas correctas ni incorrectas — solo intentá ganar lo más que puedas.</p>
+      <div class="welcome-mock">
+        <div class="mock-btn mock-A">A</div>
+        <div class="mock-btn mock-B">B</div>
+      </div>
+      <p class="mock-caption">
+        Una de las dos máquinas da puntos con más frecuencia que la otra —
+        pero ninguna garantiza un punto en cada turno, y al principio no sabés cuál es cuál.
+      </p>
+      <p>
+        Tu objetivo es <strong>acumular la mayor cantidad de puntos posibles</strong> en 80 turnos.
+        No hay respuestas correctas ni incorrectas — solo intentá ganar lo más que puedas.
+      </p>
       <div class="form-group">
         <label for="name-input">Tu nombre o alias</label>
         <input type="text" id="name-input" placeholder="Ej: Valentina" autocomplete="off" maxlength="50">
@@ -67,7 +77,7 @@
         <canvas id="chart-individual"></canvas>
       </div>
       <p class="chart-explainer">
-        <strong style="color:#e8c547">Línea dorada:</strong> en cada bloque de 5 turnos, qué porcentaje de veces elegiste la opción ganadora (eje Y). A medida que aprendés, la línea sube. La <strong style="color:#5b8dee">línea azul punteada</strong> marca el 75%: la probabilidad de recompensa si siempre elegís bien. La línea vertical es el momento del reversal (turno 41), cuando las probabilidades se invirtieron.
+        <strong style="color:#e8c547">Línea dorada:</strong> en cada bloque de 5 turnos, qué porcentaje de veces elegiste la opción ganadora (eje Y). A medida que aprendés, la línea sube. La <strong style="color:#5b8dee">línea azul punteada</strong> marca el 70%: la probabilidad de recompensa si siempre elegís bien. La línea vertical es el momento del reversal (turno 41), cuando las probabilidades se invirtieron.
       </p>
       <div id="phase-reveal" class="info-box"></div>
       <button id="btn-to-collective" class="btn btn-primary">Ver resultados del grupo</button>
@@ -87,7 +97,7 @@
         <canvas id="chart-collective"></canvas>
       </div>
       <p class="chart-explainer">
-        <strong style="color:#e8c547">Línea dorada:</strong> promedio del grupo — en cada bloque de 5 turnos, qué porcentaje de veces eligió la opción ganadora (eje Y). La <strong style="color:#5b8dee">línea azul punteada</strong> marca el 75% óptimo. La línea vertical señala el reversal (turno 41).
+        <strong style="color:#e8c547">Línea dorada:</strong> promedio del grupo — en cada bloque de 5 turnos, qué porcentaje de veces eligió la opción ganadora (eje Y). La <strong style="color:#5b8dee">línea azul punteada</strong> marca el 70% óptimo. La línea vertical señala el reversal (turno 41).
       </p>
       <div id="collective-status" class="loading-text"></div>
 
