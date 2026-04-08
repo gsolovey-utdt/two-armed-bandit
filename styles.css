@@ -2,19 +2,19 @@
    VARIABLES
    ============================================================ */
 :root {
-  --bg:           #0d0e12;
-  --surface:      #161820;
-  --surface-2:    #1e2030;
-  --border:       #2a2d3e;
-  --text:         #e8e9f0;
-  --muted:        #8b8fa8;
+  --bg:           #f4f5f9;
+  --surface:      #ffffff;
+  --surface-2:    #f0f1f7;
+  --border:       #dde0ee;
+  --text:         #1a1d2e;
+  --muted:        #6b7280;
   --gold:         #e8c547;
   --gold-dark:    #d4b03a;
   --blue:         #5b8dee;
   --blue-dark:    #4a7ad8;
-  --reward:       #4ade80;
-  --no-reward:    #f87171;
-  --shadow:       0 4px 24px rgba(0,0,0,0.4);
+  --reward:       #16a34a;
+  --no-reward:    #dc2626;
+  --shadow:       0 2px 16px rgba(26,29,46,0.08);
   --radius:       14px;
 }
 
@@ -22,6 +22,10 @@
    BASE
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  overscroll-behavior-y: none;
+}
 
 body {
   font-family: 'DM Sans', -apple-system, sans-serif;
@@ -32,6 +36,7 @@ body {
   align-items: flex-start;
   justify-content: center;
   padding: 1.5rem 1rem;
+  overscroll-behavior-y: none;
 }
 
 /* ============================================================
@@ -79,7 +84,7 @@ body {
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.1em;
-  color: var(--bg);
+  color: #0d0e12;
   background: var(--gold);
   padding: 0.2rem 0.55rem;
   border-radius: 4px;
@@ -298,6 +303,37 @@ input[type="text"]::placeholder { color: var(--muted); opacity: 0.6; }
 .choice-A { background: var(--gold);  color: #0d0e12; }
 .choice-B { background: var(--blue);  color: #ffffff; }
 
+/* Welcome screen mock buttons */
+.welcome-mock {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1.25rem 0 0.5rem;
+}
+.mock-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  pointer-events: none;
+  user-select: none;
+}
+.mock-A { background: var(--gold); color: #0d0e12; }
+.mock-B { background: var(--blue); color: #ffffff; }
+.mock-caption {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 1rem;
+  line-height: 1.55;
+}
+
 /* ============================================================
    RESULTS
    ============================================================ */
@@ -408,6 +444,17 @@ cite {
   font-size: 0.85rem;
   font-style: italic;
   color: var(--muted);
+}
+
+/* Bullet lists inside learn sections */
+.learn-list {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 /* References */
