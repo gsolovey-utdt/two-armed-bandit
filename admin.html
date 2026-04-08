@@ -233,18 +233,31 @@
     // ── Load data ─────────────────────────────────────────────
     let chartInstance = null;
 
+    async function fetchAllTrials() {
+      const pageSize = 1000;
+      let allData = [];
+      let from = 0;
+      while (true) {
+        const { data, error } = await db
+          .from('trials')
+          .select('session_id, participant_name, trial_number, choice, phase1_winner, cumulative_score')
+          .order('trial_number', { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        allData = allData.concat(data);
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+      return allData;
+    }
+
     async function loadData() {
       document.getElementById('chart-status').textContent = 'Cargando datos…';
       document.getElementById('stats-grid').innerHTML = '';
       document.getElementById('lb-rows').innerHTML = '';
 
       try {
-        const { data, error } = await db
-          .from('trials')
-          .select('session_id, participant_name, trial_number, choice, phase1_winner, cumulative_score')
-          .order('trial_number', { ascending: true });
-
-        if (error) throw error;
+        const data = await fetchAllTrials();
 
         // Group by session
         const map = {};
@@ -260,8 +273,10 @@
 
         if (n === 0) {
           if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+          const allSessions = Object.values(map).length;
           document.getElementById('chart-status').innerHTML =
-            '<div class="empty-state">Todavía no hay sesiones completas.</div>';
+            `<div class="empty-state">Todavía no hay sesiones completas.<br>
+             <span style="font-size:0.8rem;color:var(--muted)">(${data.length} filas · ${allSessions} sesión${allSessions !== 1 ? 'es' : ''} parcial${allSessions !== 1 ? 'es' : ''})</span></div>`;
           return;
         }
 
