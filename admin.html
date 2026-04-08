@@ -259,6 +259,7 @@
         document.getElementById('chart-status').textContent = '';
 
         if (n === 0) {
+          if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
           document.getElementById('chart-status').innerHTML =
             '<div class="empty-state">Todavía no hay sesiones completas.</div>';
           return;
