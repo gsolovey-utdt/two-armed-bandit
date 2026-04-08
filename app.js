@@ -9,8 +9,8 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const CONFIG = {
   phase1Trials:  40,
   phase2Trials:  40,
-  probWinner:    0.75,
-  probLoser:     0.25,
+  probWinner:    0.70,
+  probLoser:     0.30,
   feedbackMs:    950,
   windowSize:    5,
 };
@@ -56,7 +56,6 @@ const refs = {
   collectiveSummary: el('collective-summary'),
   collectiveStatus:  el('collective-status'),
   btnToLearn:        el('btn-to-learn'),
-  btnRestart:        el('btn-restart'),
 };
 
 // ============================================================
@@ -275,9 +274,9 @@ function showIndividualResults() {
 
   refs.phaseReveal.innerHTML =
     `<strong>Lo que pasó:</strong> en esta sesión, la opción <strong>${winner}</strong> era la ganadora
-     en los primeros 40 turnos (75% de probabilidad de punto). En el turno 41, la ganadora
+     en los primeros 40 turnos (70% de probabilidad de punto). En el turno 41, la ganadora
      pasó a ser la opción <strong>${loser}</strong> sin ningún aviso.
-     La línea azul marca el 75%: la probabilidad de recompensa si siempre elegís la opción ganadora.
+     La línea azul marca el 70%: la probabilidad de recompensa si siempre elegís la opción ganadora.
      La línea vertical señala el momento del cambio. ¿Lo notaste?`;
 
   if (state.charts.individual) state.charts.individual.destroy();
@@ -452,11 +451,31 @@ refs.btnA.addEventListener('click', () => handleChoice('A'));
 refs.btnB.addEventListener('click', () => handleChoice('B'));
 refs.btnToCollective.addEventListener('click', showCollectiveResults);
 refs.btnToLearn.addEventListener('click', () => showScreen('learn'));
-refs.btnRestart.addEventListener('click', () => {
-  refs.nameInput.value = '';
-  refs.btnStart.disabled = true;
-  showScreen('welcome');
+
+// btn-restart lives inside learn.html which is injected dynamically — use delegation
+document.addEventListener('click', e => {
+  if (e.target.id === 'btn-restart') {
+    refs.nameInput.value = '';
+    refs.btnStart.disabled = true;
+    showScreen('welcome');
+  }
 });
+
+// Load learn screen content from separate file
+fetch('learn.html')
+  .then(r => r.text())
+  .then(html => { document.querySelector('.learn-card').innerHTML = html; })
+  .catch(() => {
+    document.querySelector('.learn-card').innerHTML =
+      '<p style="color:var(--muted)">No se pudo cargar el contenido.</p>';
+  });
+
+// Prevent pull-to-refresh on iOS Safari
+let _touchStartY = 0;
+document.addEventListener('touchstart', e => { _touchStartY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchmove', e => {
+  if (window.scrollY === 0 && e.touches[0].clientY > _touchStartY) e.preventDefault();
+}, { passive: false });
 
 // Arrow keys: ← = A, → = B (desktop only)
 document.addEventListener('keydown', e => {

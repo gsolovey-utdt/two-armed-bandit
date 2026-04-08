@@ -103,6 +103,25 @@
     .chart-card { margin-bottom: 1.5rem; }
     .chart-card h2 { margin-bottom: 0.25rem; }
 
+    .danger-card {
+      margin-top: 1.5rem;
+      border-color: rgba(224, 92, 92, 0.35);
+    }
+    .danger-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #e05c5c;
+      margin-bottom: 0.5rem;
+    }
+    .btn-danger {
+      background: transparent;
+      border: 1px solid #e05c5c;
+      color: #e05c5c;
+    }
+    .btn-danger:hover { background: rgba(224,92,92,0.12); }
+
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
@@ -139,7 +158,7 @@
       <p class="muted" style="margin-bottom: 0.75rem;">
         Líneas finas: sesiones individuales &nbsp;·&nbsp;
         Línea brillante: promedio del grupo &nbsp;·&nbsp;
-        Línea azul: probabilidad máxima (75%)
+        Línea azul: probabilidad máxima (70%)
       </p>
       <div class="window-control">
         <label for="window-size">Ventana</label>
@@ -161,6 +180,16 @@
       <div id="lb-rows"></div>
     </div>
 
+    <!-- Danger zone -->
+    <div class="card danger-card">
+      <div class="danger-title">Zona de peligro</div>
+      <p class="muted" style="font-size:0.85rem; margin-bottom:1rem;">
+        Borra permanentemente todos los datos de la tabla. No se puede deshacer.
+      </p>
+      <button id="btn-delete-all" class="btn btn-danger btn-small">🗑 Borrar todos los datos</button>
+      <div id="delete-status" style="margin-top:0.75rem; font-size:0.85rem;"></div>
+    </div>
+
     <p class="author-credit" style="text-align:center; margin-top:1.5rem;">
       Guillermo Solovey · UTDT · 2026
     </p>
@@ -176,7 +205,7 @@
   <script>
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const CFG = { phase1Trials: 40, totalTrials: 80, probWinner: 0.75 };
+    const CFG = { phase1Trials: 40, totalTrials: 80, probWinner: 0.70 };
 
     // ── Cached data ───────────────────────────────────────────
     let completeSessions = []; // array of arrays (one per session)
@@ -204,18 +233,31 @@
     // ── Load data ─────────────────────────────────────────────
     let chartInstance = null;
 
+    async function fetchAllTrials() {
+      const pageSize = 1000;
+      let allData = [];
+      let from = 0;
+      while (true) {
+        const { data, error } = await db
+          .from('trials')
+          .select('session_id, participant_name, trial_number, choice, phase1_winner, cumulative_score')
+          .order('trial_number', { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        allData = allData.concat(data);
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+      return allData;
+    }
+
     async function loadData() {
       document.getElementById('chart-status').textContent = 'Cargando datos…';
       document.getElementById('stats-grid').innerHTML = '';
       document.getElementById('lb-rows').innerHTML = '';
 
       try {
-        const { data, error } = await db
-          .from('trials')
-          .select('session_id, participant_name, trial_number, choice, phase1_winner, cumulative_score')
-          .order('trial_number', { ascending: true });
-
-        if (error) throw error;
+        const data = await fetchAllTrials();
 
         // Group by session
         const map = {};
@@ -230,8 +272,11 @@
         document.getElementById('chart-status').textContent = '';
 
         if (n === 0) {
+          if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+          const allSessions = Object.values(map).length;
           document.getElementById('chart-status').innerHTML =
-            '<div class="empty-state">Todavía no hay sesiones completas.</div>';
+            `<div class="empty-state">Todavía no hay sesiones completas.<br>
+             <span style="font-size:0.8rem;color:var(--muted)">(${data.length} filas · ${allSessions} sesión${allSessions !== 1 ? 'es' : ''} parcial${allSessions !== 1 ? 'es' : ''})</span></div>`;
           return;
         }
 
@@ -347,6 +392,7 @@
           },
           options: {
             responsive: true,
+            maintainAspectRatio: false,
             parsing: false,
             scales: {
               x: {
@@ -426,6 +472,30 @@
           </div>`;
       }).join('');
     }
+
+    // ── Delete all data ───────────────────────────────────────
+    document.getElementById('btn-delete-all').addEventListener('click', async () => {
+      const pw = prompt('Ingresá la contraseña para borrar todos los datos:');
+      if (pw === null) return; // cancelled
+      if (pw !== 'nype2026') {
+        document.getElementById('delete-status').innerHTML =
+          '<span style="color:#e05c5c">Contraseña incorrecta.</span>';
+        return;
+      }
+      const confirmed = confirm('¿Seguro? Esto borra TODOS los datos de forma permanente.');
+      if (!confirmed) return;
+
+      document.getElementById('delete-status').textContent = 'Borrando…';
+      const { error } = await db.from('trials').delete().gte('trial_number', 1);
+      if (error) {
+        document.getElementById('delete-status').innerHTML =
+          `<span style="color:#e05c5c">Error: ${error.message}</span>`;
+      } else {
+        document.getElementById('delete-status').innerHTML =
+          '<span style="color:#6bcb77">Datos borrados correctamente.</span>';
+        setTimeout(loadData, 800);
+      }
+    });
 
     // ── Events ────────────────────────────────────────────────
     document.getElementById('btn-refresh').addEventListener('click', loadData);
