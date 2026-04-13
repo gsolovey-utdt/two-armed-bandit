@@ -229,6 +229,19 @@ input[type="text"]::placeholder { color: var(--muted); opacity: 0.6; }
   padding: 1rem 1.5rem;
 }
 
+.task-mode-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+}
+
 .score-box, .trial-info {
   display: flex;
   flex-direction: column;

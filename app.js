@@ -7,12 +7,13 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // CONFIG
 // ============================================================
 const CONFIG = {
-  phase1Trials:  40,
-  phase2Trials:  40,
-  probWinner:    0.70,
-  probLoser:     0.30,
-  feedbackMs:    950,
-  windowSize:    5,
+  phase1Trials:   40,
+  phase2Trials:   40,
+  practiceTrials: 10,
+  probWinner:     0.70,
+  probLoser:      0.30,
+  feedbackMs:     950,
+  windowSize:     5,
 };
 CONFIG.totalTrials = CONFIG.phase1Trials + CONFIG.phase2Trials;
 
@@ -21,19 +22,23 @@ CONFIG.totalTrials = CONFIG.phase1Trials + CONFIG.phase2Trials;
 // ============================================================
 let state = {};
 let localTrials = [];
+let localPracticeTrials = [];
 
 function resetState(name) {
   state = {
     name,
-    sessionId:    crypto.randomUUID(),
-    phase1Winner: Math.random() < 0.5 ? 'A' : 'B',  // randomized each session
-    currentTrial: 0,
-    score:        0,
-    trialStart:   null,
-    accepting:    false,
-    charts:       {},
+    sessionId:      crypto.randomUUID(),
+    phase1Winner:   Math.random() < 0.5 ? 'A' : 'B',  // randomized each session
+    practiceWinner: Math.random() < 0.5 ? 'A' : 'B',  // randomized each session
+    isPractice:     true,
+    currentTrial:   0,
+    score:          0,
+    trialStart:     null,
+    accepting:      false,
+    charts:         {},
   };
   localTrials = [];
+  localPracticeTrials = [];
 }
 
 // ============================================================
@@ -42,26 +47,31 @@ function resetState(name) {
 const el = id => document.getElementById(id);
 
 const refs = {
-  nameInput:         el('name-input'),
-  btnStart:          el('btn-start'),
-  score:             el('score'),
-  trialNum:          el('trial-num'),
-  feedbackArea:      el('feedback-area'),
-  btnA:              el('btn-A'),
-  btnB:              el('btn-B'),
-  resultTitle:       el('result-title'),
-  resultSummary:     el('result-summary'),
-  phaseReveal:       el('phase-reveal'),
-  btnToCollective:   el('btn-to-collective'),
-  collectiveSummary: el('collective-summary'),
-  collectiveStatus:  el('collective-status'),
-  btnToLearn:        el('btn-to-learn'),
+  nameInput:           el('name-input'),
+  btnStart:            el('btn-start'),
+  btnStartPractice:    el('btn-start-practice'),
+  btnStartReal:        el('btn-start-real'),
+  score:               el('score'),
+  trialNum:            el('trial-num'),
+  trialTotal:          el('trial-total'),
+  taskModeLabel:       el('task-mode-label'),
+  feedbackArea:        el('feedback-area'),
+  btnA:                el('btn-A'),
+  btnB:                el('btn-B'),
+  practiceDebriefText: el('practice-debrief-text'),
+  resultTitle:         el('result-title'),
+  resultSummary:       el('result-summary'),
+  phaseReveal:         el('phase-reveal'),
+  btnToCollective:     el('btn-to-collective'),
+  collectiveSummary:   el('collective-summary'),
+  collectiveStatus:    el('collective-status'),
+  btnToLearn:          el('btn-to-learn'),
 };
 
 // ============================================================
 // NAVIGATION
 // ============================================================
-const SCREENS = ['welcome', 'task', 'individual', 'collective', 'learn'];
+const SCREENS = ['welcome', 'practice-intro', 'task', 'practice-debrief', 'individual', 'collective', 'learn'];
 
 function showScreen(name) {
   SCREENS.forEach(s =>
@@ -96,7 +106,24 @@ function startExperiment() {
   const name = refs.nameInput.value.trim();
   if (!name) return;
   resetState(name);
+  showScreen('practice-intro');
+}
+
+function startPractice() {
   refs.score.textContent = '0';
+  refs.taskModeLabel.style.display = '';
+  refs.trialTotal.textContent = `/ ${CONFIG.practiceTrials}`;
+  showScreen('task');
+  nextTrial();
+}
+
+function startRealExperiment() {
+  state.isPractice = false;
+  state.currentTrial = 0;
+  state.score = 0;
+  refs.score.textContent = '0';
+  refs.taskModeLabel.style.display = 'none';
+  refs.trialTotal.textContent = `/ ${CONFIG.totalTrials}`;
   showScreen('task');
   nextTrial();
 }
@@ -118,8 +145,10 @@ function handleChoice(choice) {
   if (!state.accepting) return;
   state.accepting = false;
 
-  const rt      = Date.now() - state.trialStart;
-  const prob    = rewardProb(choice, state.currentTrial, state.phase1Winner);
+  const rt = Date.now() - state.trialStart;
+  const prob = state.isPractice
+    ? (choice === state.practiceWinner ? CONFIG.probWinner : CONFIG.probLoser)
+    : rewardProb(choice, state.currentTrial, state.phase1Winner);
   const rewarded = Math.random() < prob;
 
   if (rewarded) state.score++;
@@ -133,30 +162,45 @@ function handleChoice(choice) {
   refs.feedbackArea.textContent = rewarded ? '+1 punto ✓' : 'Sin punto  ✗';
   refs.feedbackArea.className   = `feedback-area ${rewarded ? 'fb-reward' : 'fb-no-reward'}`;
 
-  const phase = state.currentTrial <= CONFIG.phase1Trials ? 1 : 2;
-
-  const trial = {
-    session_id:       state.sessionId,
-    participant_name: state.name,
-    trial_number:     state.currentTrial,
-    phase,
-    choice,
-    phase1_winner:    state.phase1Winner,
-    rewarded,
-    cumulative_score: state.score,
-    reaction_time_ms: rt,
-  };
-
-  localTrials.push(trial);
-  saveTrial(trial);
+  if (state.isPractice) {
+    localPracticeTrials.push({ choice, rewarded });
+  } else {
+    const phase = state.currentTrial <= CONFIG.phase1Trials ? 1 : 2;
+    const trial = {
+      session_id:       state.sessionId,
+      participant_name: state.name,
+      trial_number:     state.currentTrial,
+      phase,
+      choice,
+      phase1_winner:    state.phase1Winner,
+      rewarded,
+      cumulative_score: state.score,
+      reaction_time_ms: rt,
+    };
+    localTrials.push(trial);
+    saveTrial(trial);
+  }
 
   setTimeout(() => {
-    if (state.currentTrial >= CONFIG.totalTrials) {
+    if (state.isPractice && state.currentTrial >= CONFIG.practiceTrials) {
+      showPracticeDebrief();
+    } else if (!state.isPractice && state.currentTrial >= CONFIG.totalTrials) {
       showIndividualResults();
     } else {
       nextTrial();
     }
   }, CONFIG.feedbackMs);
+}
+
+function showPracticeDebrief() {
+  showScreen('practice-debrief');
+  const winner = state.practiceWinner;
+  const loser  = winner === 'A' ? 'B' : 'A';
+  const chosenWinner = localPracticeTrials.filter(t => t.choice === winner).length;
+  const pct = Math.round((chosenWinner / CONFIG.practiceTrials) * 100);
+  refs.practiceDebriefText.innerHTML =
+    `En estos ensayos, la máquina <strong>${winner}</strong> pagaba más que la <strong>${loser}</strong>
+     (70% de probabilidad de punto). La elegiste <strong>${chosenWinner} de ${CONFIG.practiceTrials} veces</strong> (${pct}%).`;
 }
 
 async function saveTrial(trial) {
@@ -456,6 +500,8 @@ refs.nameInput.addEventListener('keydown', e => {
 });
 
 refs.btnStart.addEventListener('click', startExperiment);
+refs.btnStartPractice.addEventListener('click', startPractice);
+refs.btnStartReal.addEventListener('click', startRealExperiment);
 refs.btnA.addEventListener('click', () => handleChoice('A'));
 refs.btnB.addEventListener('click', () => handleChoice('B'));
 refs.btnToCollective.addEventListener('click', showCollectiveResults);

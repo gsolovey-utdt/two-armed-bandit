@@ -43,6 +43,26 @@
     </div>
   </div>
 
+  <!-- PANTALLA 1b: INTRO PRÁCTICA -->
+  <div id="screen-practice-intro" class="screen">
+    <div class="card">
+      <div class="nype-header">
+        <span class="nype-badge">NyPE</span>
+        <span class="nype-sub">Neurociencia y Psicología Experimental</span>
+      </div>
+      <h2>Ensayos de práctica</h2>
+      <p>
+        Antes de empezar el experimento real, vamos a hacer <strong>10 ensayos de práctica</strong>
+        para que te familiarices con la tarea.
+      </p>
+      <p>
+        La dinámica es la misma: en cada turno elegís entre <strong>A</strong> y <strong>B</strong>
+        e intentás acumular la mayor cantidad de puntos.
+      </p>
+      <button id="btn-start-practice" class="btn btn-primary">Empezar práctica</button>
+    </div>
+  </div>
+
   <!-- PANTALLA 2: TAREA -->
   <div id="screen-task" class="screen">
     <div class="task-container">
@@ -51,9 +71,10 @@
           <span class="score-label">Puntos</span>
           <span id="score" class="score-value">0</span>
         </div>
+        <div id="task-mode-label" class="task-mode-label" style="display:none;">PRÁCTICA</div>
         <div class="trial-info">
           <span class="score-label">Turno</span>
-          <span id="trial-num" class="trial-value">1</span>
+          <span id="trial-num" class="trial-value">1</span><span id="trial-total" class="score-label" style="font-size:0.8rem;padding-top:0.1rem"></span>
         </div>
       </div>
       <div id="feedback-area" class="feedback-area"></div>
@@ -61,6 +82,29 @@
         <button id="btn-A" class="choice-btn choice-A">A</button>
         <button id="btn-B" class="choice-btn choice-B">B</button>
       </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2b: DEBRIEF PRÁCTICA -->
+  <div id="screen-practice-debrief" class="screen">
+    <div class="card">
+      <div class="nype-header">
+        <span class="nype-badge">NyPE</span>
+        <span class="nype-sub">Neurociencia y Psicología Experimental</span>
+      </div>
+      <h2>¿Cómo te fue?</h2>
+      <p id="practice-debrief-text" class="muted"></p>
+      <div class="info-box">
+        <p>
+          Ahora empieza el experimento real. <strong>No te vamos a decir cuál de las dos máquinas
+          da más puntos</strong> — eso lo tenés que descubrir vos.
+        </p>
+        <p>
+          Ojo: en algún momento del camino las probabilidades pueden cambiar sin aviso.
+          ¡Suerte!
+        </p>
+      </div>
+      <button id="btn-start-real" class="btn btn-primary">Empezar el experimento</button>
     </div>
   </div>
 
