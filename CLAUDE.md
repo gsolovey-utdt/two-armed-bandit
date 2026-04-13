@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this app is
 
-A single-page web experiment for first-year behavioral science students (Licenciatura en Ciencias del Comportamiento, UTDT). Students run a **two-armed bandit task** (80 trials, two phases) and see their individual and group learning curves at the end. Built by Guillermo Solovey for the course **NyPE** (Neurociencia y Psicología Experimental).
+A single-page web experiment for first-year behavioral science students (Licenciatura en Ciencias del Comportamiento, UTDT). Students do 10 practice trials, then run a **two-armed bandit task** (80 trials, two phases) and see their individual and group learning curves at the end. Built by Guillermo Solovey for the course **NyPE** (Neurociencia y Psicología Experimental).
 
 Deployed to **GitHub Pages** — no build step, pure static files.
 
@@ -12,18 +12,29 @@ Deployed to **GitHub Pages** — no build step, pure static files.
 
 | File | Purpose |
 |------|---------|
-| `index.html` | Main experiment — 5 screens: welcome, task, individual results, collective results + leaderboard, learn more |
+| `index.html` | Main experiment — 7 screens: welcome, practice-intro, task (shared), practice-debrief, individual results, collective results + leaderboard, learn more |
 | `styles.css` | Shared styles — dark theme, CSS variables, mobile-first. Includes leaderboard component. Used by both `index.html` and `admin.html` |
 | `app.js` | All experiment logic: state, reward randomization, Supabase saves, Chart.js rendering, leaderboard |
 | `admin.html` | Teacher dashboard — no password, collective learning curve + stats + leaderboard + adjustable window size |
 
 ## Experiment design
 
-- **Phase 1** (trials 1–40): one option rewards 75%, the other 25%
+### Practice (10 trials)
+- Fixed 70/30 probabilities, no reversal
+- Which option is the winner is randomized 50/50 per session (independent of the real experiment's `phase1Winner`)
+- **Not saved to Supabase**
+- After practice: debrief screen shows which machine paid more and how many times the participant chose it (dynamic X/Y)
+- Then a transition message explains the real experiment starts and that probabilities may change without warning
+
+### Real experiment (80 trials)
+- **Phase 1** (trials 1–40): one option rewards 70%, the other 30%
 - **Phase 2** (trials 41–80): probabilities reverse — the previously bad option is now good
 - The reversal is **not announced** — participants discover it (or don't)
-- Which option (A or B) is the phase-1 winner is **randomized per session** (50/50), so participants can repeat without the task being trivial
+- Which option (A or B) is the phase-1 winner is **randomized per session** (50/50), independently of the practice winner
 - Learning curve Y-axis: **% chose the optimal option** (not % chose A), making all sessions comparable regardless of randomization
+
+### Shared task screen
+The same `screen-task` is reused for both practice and real experiment. `state.isPractice` controls the logic. The task header shows a "PRÁCTICA" badge and "/ 10" or "/ 80" trial counter depending on mode.
 
 ## Stack
 
@@ -63,13 +74,13 @@ create policy "anon_insert" on trials for insert to anon with check (true);
 create policy "anon_select" on trials for select to anon using (true);
 ```
 
-Collective results and leaderboard filter to sessions with ≥ 80 trials (complete sessions only).
+Collective results and leaderboard filter to sessions with ≥ 80 trials (complete sessions only). The query paginates in pages of 1000 rows to avoid Supabase's default row limit.
 
 ## Admin panel (`admin.html`)
 
 - No password — open directly
 - Stats: total complete sessions, average score
-- Chart: individual session curves (faint gold) + group average (bright gold) + 75% reference line (blue dashed) + vertical line at reversal (trial 40.5)
+- Chart: individual session curves (faint gold) + group average (bright gold) + 70% reference line (blue dashed) + vertical line at reversal (trial 40.5)
 - Window size selector (1–20 trials, default 5) — changes smoothing without re-fetching data
 - Leaderboard: top 10 by final score, medals for top 3
 - Refresh button to reload live during class
