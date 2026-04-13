@@ -324,12 +324,21 @@ async function showCollectiveResults() {
   if (state.charts.collective) state.charts.collective.destroy();
 
   try {
-    const { data, error } = await db
-      .from('trials')
-      .select('session_id, participant_name, trial_number, choice, phase1_winner, cumulative_score')
-      .order('trial_number', { ascending: true });
-
-    if (error) throw error;
+    // Paginate to avoid Supabase's 1000-row default limit
+    let allData = [], from = 0;
+    const pageSize = 1000;
+    while (true) {
+      const { data, error } = await db
+        .from('trials')
+        .select('session_id, participant_name, trial_number, choice, phase1_winner, cumulative_score')
+        .order('trial_number', { ascending: true })
+        .range(from, from + pageSize - 1);
+      if (error) throw error;
+      allData = allData.concat(data);
+      if (data.length < pageSize) break;
+      from += pageSize;
+    }
+    const data = allData;
 
     // Group by session; keep only complete sessions
     const sessions = {};
